@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebIDE Engine - Theme Studio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/vs2015.min.css" id="hljs-theme">
+    <style>
+        /* Strip hljs background so our theme --bg-dark controls editor color */
+        pre code.hljs { background: transparent !important; padding: 0 !important; }
+
+        /* Bridge: hljs token classes → CSS variables so custom themes control all syntax colors */
+        .hljs-keyword,
+        .hljs-selector-pseudo,
+        .hljs-selector-class          { color: var(--syntax-keyword) !important; }
+
+        .hljs-string,
+        .hljs-literal,
+        .hljs-regexp,
+        .hljs-template-variable,
+        .hljs-doctag                  { color: var(--syntax-val) !important; }
+
+        .hljs-number                  { color: var(--syntax-number) !important; }
+
+        .hljs-comment                 { color: var(--syntax-comment) !important; }
+
+        .hljs-tag,
+        .hljs-name,
+        .hljs-built_in,
+        .hljs-type,
+        .hljs-symbol,
+        .hljs-bullet,
+        .hljs-link,
+        .hljs-meta                    { color: var(--syntax-tag) !important; }
+
+        .hljs-attr,
+        .hljs-variable,
+        .hljs-title,
+        .hljs-title.class_,
+        .hljs-title.function_,
+        .hljs-params                  { color: var(--syntax-attr) !important; }
+
+        .hljs-selector-tag,
+        .hljs-selector-id             { color: var(--syntax-selector) !important; }
+
+        .hljs-addition                { color: var(--syntax-val) !important; }
+        .hljs-deletion                { color: var(--syntax-comment) !important; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        /* Core Engine Themes */
+        :root,
+        [data-theme="vs-dark"] {
+            --bg-dark: #1e1e1e;
+            --bg-sidebar: #252526;
+            --bg-active: #37373d;
+            --text-color: #d4d4d4;
+            --accent: #007acc;
+            --border: #3c3c3c;
+            --syntax-tag: #569cd6;
+            --syntax-attr: #9cdcfe;
+            --syntax-val: #ce9178;
+            --syntax-comment: #6a9955;
+            --syntax-keyword: #c586c0;
+            --syntax-selector: #d7ba7d;
+            --caret: #ffffff;
+            --syntax-number: #b5cea8;
+            
+        }
+
+        [data-theme="vs-light"] {
+            --bg-dark: #ffffff;
+            --bg-sidebar: #f3f3f3;
+            --bg-active: #e4e6f1;
+            --text-color: #333333;
+            --accent: #007acc;
+            --border: #cecece;
+            --syntax-tag: #800000;
+            --syntax-attr: #ff0000;
+            --syntax-val: #0000ff;
+            --syntax-comment: #008000;
+            --syntax-keyword: #0000ff;
+            --syntax-selector: #800080;
+            --caret: #000000;
+            --syntax-number: #098658;
+        }
+
+        [data-theme="nordic-frost"] {
+            --bg-dark: #2e3440;
+            --bg-sidebar: #232831;
+            --bg-active: #434c5e;
+            --text-color: #d8dee9;
+            --accent: #88c0d0;
+            --border: #3b4252;
+            --syntax-tag: #81a1c1;
+            --syntax-attr: #8fbcbb;
+            --syntax-val: #a3be8c;
+            --syntax-comment: #4c566a;
+            --syntax-keyword: #b48ead;
+            --syntax-selector: #ebcb8b;
+            --caret: #88c0d0;
+            --syntax-number: #b48ead;
+        }
+
+        [data-theme="dracula"] {
+            --bg-dark: #282a36;
+            --bg-sidebar: #21222c;
+            --bg-active: #44475a;
+            --text-color: #f8f8f2;
+            --accent: #bd93f9;
+            --border: #6272a4;
+            --syntax-tag: #ff79c6;
+            --syntax-attr: #50fa7b;
+            --syntax-val: #f1fa8c;
+            --syntax-comment: #6272a4;
+            --syntax-keyword: #ff79c6;
+            --syntax-selector: #8be9fd;
+            --caret: #f8f8f2;
+            --syntax-number: #bd93f9;
+        }
+
+        [data-theme="one-dark"] {
+            --bg-dark: #282c34;
+            --bg-sidebar: #21252b;
+            --bg-active: #3e4451;
+            --text-color: #abb2bf;
+            --accent: #61afef;
+            --border: #181a1f;
+            --syntax-tag: #e06c75;
+            --syntax-attr: #d19a66;
+            --syntax-val: #98c379;
+            --syntax-comment: #5c6370;
+            --syntax-keyword: #c678dd;
+            --syntax-selector: #e5c07b;
+            --caret: #528bff;
+            --syntax-number: #d19a66;
+        }
+
+        [data-theme="gruvbox-dark"] {
+            --bg-dark: #282828;
+            --bg-sidebar: #1d2021;
+            --bg-active: #504945;
+            --text-color: #ebdbb2;
+            --accent: #fe8019;
+            --border: #3c3836;
+            --syntax-tag: #fb4934;
+            --syntax-attr: #b8bb26;
+            --syntax-val: #b8bb26;
+            --syntax-comment: #928374;
+            --syntax-keyword: #fb4934;
+            --syntax-selector: #8ec07c;
+            --caret: #ebdbb2;
+            --syntax-number: #d3869b;
+        }
+
+        [data-theme="synthwave"] {
+            --bg-dark: #2b213a;
+            --bg-sidebar: #241b31;
+            --bg-active: #ff7edb;
+            --text-color: #f0eee4;
+            --accent: #fede5d;
+            --border: #ff7edb;
+            --syntax-tag: #72f1b8;
+            --syntax-attr: #fede5d;
+            --syntax-val: #ff7edb;
+            --syntax-comment: #848bb7;
+            --syntax-keyword: #fede5d;
+            --syntax-selector: #36f9f6;
+            --caret: #fede5d;
+            --syntax-number: #f97e72;
+        }
+
+        [data-theme="tokyo-night"] {
+            --bg-dark: #1a1b26;
+            --bg-sidebar: #16161e;
+            --bg-active: #2f3549;
+            --text-color: #a9b1d6;
+            --accent: #7aa2f7;
+            --border: #383e5a;
+            --syntax-tag: #f7768e;
+            --syntax-attr: #ff9e64;
+            --syntax-val: #9ece6a;
+            --syntax-comment: #565f89;
+            --syntax-keyword: #bb9af7;
+            --syntax-selector: #7abcfa;
+            --caret: #c0caf5;
+            --syntax-number: #ff9e64;
+        }
+
+        [data-theme="github-light"] {
+            --bg-dark: #ffffff;
+            --bg-sidebar: #f6f8fa;
+            --bg-active: #eaeef2;
+            --text-color: #24292f;
+            --accent: #0969da;
+            --border: #d0d7de;
+            --syntax-tag: #116329;
+            --syntax-attr: #953800;
+            --syntax-val: #0a3069;
+            --syntax-comment: #6e7781;
+            --syntax-keyword: #cf222e;
+            --syntax-selector: #8250df;
+            --caret: #24292f;
+            --syntax-number: #005cc5;
+        }
+
+        [data-theme="cyberpunk"] {
+            --bg-dark: #000b19;
+            --bg-sidebar: #001631;
+            --bg-active: #ff0055;
+            --text-color: #00ffcc;
+            --accent: #00ffcc;
+            --border: #ff0055;
+            --syntax-tag: #ff0055;
+            --syntax-attr: #00ffcc;
+            --syntax-val: #fffb00;
+            --syntax-comment: #44566c;
+            --syntax-keyword: #ff0055;
+            --syntax-selector: #fffb00;
+            --caret: #ff0055;
+            --syntax-number: #00ffcc;
+        }
+
+        [data-theme="monokai"] {
+            --bg-dark: #272822;
+            --bg-sidebar: #1e1f1c;
+            --bg-active: #3e3d32;
+            --text-color: #f8f8f2;
+            --accent: #a6e22e;
+            --border: #49483e;
+            --syntax-tag: #f92672;
+            --syntax-attr: #a6e22e;
+            --syntax-val: #e6db74;
+            --syntax-comment: #75715e;
+            --syntax-keyword: #f92672;
+            --syntax-selector: #66d9ef;
+            --caret: #f8f8f0;
+            --syntax-number: #ae81ff;
+        }
+
+        [data-theme="solarized-light"] {
+            --bg-dark: #fdf6e3;
+            --bg-sidebar: #eee8d5;
+            --bg-active: #93a1a1;
+            --text-color: #586e75;
+            --accent: #b58900;
+            --border: #dcccba;
+            --syntax-tag: #268bd2;
+            --syntax-attr: #2aa198;
+            --syntax-val: #859900;
+            --syntax-comment: #93a1a1;
+            --syntax-keyword: #859900;
+            --syntax-selector: #b58900;
+            --caret: #586e75;
+            --syntax-number: #d33682;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 15px;
+            height: 45px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        select.theme-dropdown {
+            background-color: var(--bg-active);
+            color: var(--text-color);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        button,
+        label.btn-label {
+            background-color: var(--bg-active);
+            color: var(--text-color);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        button:hover,
+        label.btn-label:hover {
+            filter: brightness(1.2);
+        }
+
+        button.active {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+            font-weight: bold;
+        }
+
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .sidebar-header {
+            padding: 10px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 4px;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .action-row button,
+        .action-row label.btn-label {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .action-row input[type="file"] {
+            display: none;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+
+        /* Virtual Document Tree Node Properties */
+        .tree-node {
+            display: flex;
+            flex-direction: column;
+            margin-left: 12px;
+            position: relative;
+        }
+
+        .tree-node.root-level {
+            margin-left: 0;
+        }
+
+        .node-row {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            gap: 6px;
+            border-radius: 3px;
+            margin: 1px 4px;
+            transition: background 0.15s;
+        }
+
+        .node-row:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .node-row.active {
+            background-color: var(--bg-active);
+            outline: 1px solid var(--border);
+        }
+
+        .node-row.drag-over {
+            border: 2px dashed var(--accent);
+            background-color: rgba(0, 122, 204, 0.1);
+        }
+
+        .node-icon {
+            font-size: 0.95rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        .node-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .node-actions {
+            display: none;
+            gap: 6px;
+        }
+
+        .node-row:hover .node-actions {
+            display: flex;
+        }
+
+        .node-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            padding: 0 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .node-btn:hover {
+            opacity: 1;
+        }
+
+        .node-checkbox {
+            cursor: pointer;
+        }
+
+        .rename-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--accent);
+            color: var(--text-color);
+            font-size: 0.85rem;
+            padding: 1px 4px;
+            width: 100%;
+            outline: none;
+            border-radius: 2px;
+        }
+
+        /* Dual-Layer Synced Editor Window Canvas */
+        .content-area {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        textarea,
+        pre {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 15px;
+            border: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            tab-size: 4;
+            white-space: pre-wrap;
+            word-break: break-all;
+            overflow-y: auto;
+        }
+
+        textarea {
+            background: transparent;
+            color: transparent;
+            caret-color: var(--caret);
+            resize: none;
+            z-index: 2;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        pre {
+            z-index: 1;
+            pointer-events: none;
+            background-color: var(--bg-dark);
+        }
+
+        /* Dynamic Syntax Highlight Overlays */
+        .tag {
+            color: var(--syntax-tag);
+        }
+
+        .attr {
+            color: var(--syntax-attr);
+        }
+
+        .val {
+            color: var(--syntax-val);
+        }
+
+        .comment {
+            color: var(--syntax-comment);
+        }
+
+        .keyword {
+            color: var(--syntax-keyword);
+        }
+
+        .selector {
+            color: var(--syntax-selector);
+        }
+
+        .preview-container {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-container.hidden {
+            display: none;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        /* --- THEME BUILDER MODAL POPUP WINDOW --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .modal-overlay.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-window {
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 550px;
+            max-width: 90vw;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            color: var(--text-color);
+        }
+
+        .modal-title-bar {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title-bar h3 {
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .theme-meta-input {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .theme-meta-input input {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-color);
+            padding: 8px;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .color-picker-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .color-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .color-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .color-description {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-input-wrapper input[type="color"] {
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .color-hex-text {
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            width: 80px;
+            text-align: center;
+        }
+
+        .modal-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .modal-footer .right-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-success {
+            background-color: #238636;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #da3633;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">&lt;/WebIDE&gt;</div>
+        <div class="controls">
+            <select id="themeSelector" class="theme-dropdown" onchange="handleDropdownThemeChange(this.value)">
+                <optgroup label="Preset Systems">
+                    <option value="vs-dark">VS Dark (Default)</option>
+                    <option value="monokai">Monokai Pro</option>
+                    <option value="cyberpunk">Cyberpunk Neon</option>
+                    <option value="vs-light">VS Light</option>
+                    <option value="solarized-light">Solarized Light</option>
+                    <option value="nordic-frost">Nordic Frost</option>
+                    <option value="dracula">Dracula</option>
+                    <option value="one-dark">One Dark</option>
+                    <option value="gruvbox-dark">Gruvbox Dark</option>
+                    <option value="synthwave">Synthwave '84</option>
+                    <option value="tokyo-night">Tokyo Night</option>
+                    <option value="github-light">GitHub Light</option>
+                </optgroup>
+                <optgroup id="customThemesGroup" label="My Custom Themes">
+                </optgroup>
+            </select>
+            <button onclick="openThemeStudio()" title="Create your own custom workspace styling scheme">🎨 New Theme</button>
+            <button id="togglePreviewBtn" class="active" onclick="togglePreview()">Live Preview: ON</button>
+            <button onclick="previewInNewTab()">Open In New Tab</button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <sidebar>
+            <div class="sidebar-header"><span>File Explorer</span></div> 
+            <div class="action-row">
+                <button onclick="createNewItem('file')">+ File</button>
+                <button onclick="createNewItem('folder')">+ Folder</button>
+                <label class="btn-label">↑ File <input type="file" onchange="uploadFile(event)"></label>
+                <label class="btn-label">↑ Folder <input type="file" webkitdirectory directory multiple onchange="uploadFolder(event)"></label>
+            </div>
+            <div class="action-row">
+                <button onclick="downloadSelected()">📥 Selected</button>
+                <button onclick="downloadAll()">📦 All (.zip)</button>
+            </div>
+            <div id="fileList" class="file-list"></div>
+        </sidebar>
+
+        <div class="content-area">
+            <div class="editor-container">
+                <div class="editor-wrapper">
+                    <textarea id="editing" spellcheck="false" oninput="updateCode(this.value); syncScroll(this);" onscroll="syncScroll(this);"></textarea>
+                    <pre id="highlighting" aria-hidden="true"><code id="highlighting-content"></code></pre>
+                </div>
+            </div>
+            <div id="previewContainer" class="preview-container">
+                <iframe id="preview"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div id="themeStudioModal" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-title-bar">
+                <h3>Theme Studio Workspace</h3>
+                <button onclick="closeThemeStudio()" class="node-btn" style="font-size: 1.2rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-meta-input">
+                    <label style="font-size: 0.85rem; color:#aaa;">Theme Design Name</label>
+                    <input type="text" id="studioThemeName" placeholder="e.g., Solar Twilight">
+                </div>
+
+                <div class="color-picker-grid" id="studioVariablesContainer">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div>
+                    <button onclick="exportStudioTheme()" title="Download theme profile config file">📤 Export</button>
+                    <label class="btn-label" title="Upload an exported theme JSON file">
+                        📥 Import <input type="file" id="importThemeFile" accept=".json" onchange="importStudioTheme(event)" style="display:none;">
+                    </label>
+                </div>
+                <div class="right-btns">
+                    <button onclick="closeThemeStudio()">Cancel</button>
+                    <button onclick="saveStudioTheme()" class="btn-success">Save & Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default Workspace Initialization Seed Data
+        let fileSystem = [{
+                id: "1",
+                name: "index.html",
+                type: "file",
+                content: `<!DOCTYPE html>\n<html>\n<head>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>Theme Studio Engine</h1>\n  <p>Click "New Theme" at the top to customize all workspace colors in real-time!</p>\n  <button id="btn">Click Event Test</button>\n  <script src="script.js"><\/script>\n</body>\n</html>`
+            },
+            {
+                id: "2",
+                name: "style.css",
+                type: "file",
+                content: `body {\n  background: #111827;\n  color: #f3f4f6;\n  font-family: system-ui, sans-serif;\n  padding: 40px;\n  text-align: center;\n}\nbutton {\n  background: #007acc;\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 4px;\n  cursor: pointer;\n}`
+            },
+            {
+                id: "3",
+                name: "script.js",
+                type: "file",
+                content: `document.getElementById('btn').addEventListener('click', () => {\n  alert('Workspace compiler running correctly!');\n});`
+            }
+        ];
+
+        let activeFileId = "1";
+        let livePreviewActive = true;
+        let draggedNodeId = null;
+        let customUserThemes = {}; // Holds user-created themes in memory
+
+        // Target Dictionary describing exactly what each property controls
+        const variableRegistry = [{
+                key: "--bg-dark",
+                label: "Editor Background",
+                desc: "Main code text canvas area background"
+            },
+            {
+                key: "--bg-sidebar",
+                label: "Sidebar Background",
+                desc: "Left file explorer tree and bar panels"
+            },
+            {
+                key: "--bg-active",
+                label: "Active Selection Rows",
+                desc: "Highlighted items, tab rows, active buttons"
+            },
+            {
+                key: "--text-color",
+                label: "Primary Font Text Color",
+                desc: "Default layout labels and unmodified standard code text"
+            },
+            {
+                key: "--accent",
+                label: "Accent Highlight Tone",
+                desc: "Logos, focused bounds, borders, and main buttons"
+            },
+            {
+                key: "--border",
+                label: "Component Separator Lines",
+                desc: "Thin dividers sorting code segments apart"
+            },
+            {
+                key: "--caret",
+                label: "Text Field Cursor Blink",
+                desc: "The color of your vertical text cursor line"
+            },
+            {
+                key: "--syntax-tag",
+                label: "HTML Tags",
+                desc: "Code color for <div>, <body>, <html> elements"
+            },
+            {
+                key: "--syntax-attr",
+                label: "Attributes & Properties",
+                desc: "Code color for class, id, href, or CSS rules"
+            },
+            {
+                key: "--syntax-val",
+                label: "Strings & Absolute Values",
+                desc: "Code color for things inside quotation marks '' or \"\""
+            },
+            {
+                key: "--syntax-comment",
+                label: "Code Comments Block",
+                desc: "Color layer covering muted code notes and readouts"
+            },
+            {
+                key: "--syntax-keyword",
+                label: "JS Keywords",
+                desc: "Code color for const, let, function, return loops"
+            },
+            {
+                key: "--syntax-selector",
+                label: "CSS Element Selectors",
+                desc: "Code color for primary styles hooks targeting layouts"
+            },
+            {
+                key: "--syntax-number",
+                label: "Numbers",
+                desc: "Code color for numbers"
+            }
+        ];
+
+        const textarea = document.getElementById("editing");
+        const highlightContent = document.getElementById("highlighting-content");
+        const preArea = document.getElementById("highlighting");
+
+        function generateId() {
+            return '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // --- Integrated Custom Theme System Core & Persistent Storage ---
+
+        function loadCustomThemesFromStorage() {
+            const saved = localStorage.getItem('WEBIDE_CUSTOM_THEMES');
+            if (saved) {
+                try {
+                    customUserThemes = JSON.parse(saved);
+                    rebuildCustomDropdownGroup();
+                } catch (e) {
+                    console.error("Failed parsing themes portfolio out of client disk storage space.");
+                }
+            }
+        }
+
+        function saveCustomThemesToStorage() {
+            localStorage.setItem('WEBIDE_CUSTOM_THEMES', JSON.stringify(customUserThemes));
+            rebuildCustomDropdownGroup();
+        }
+
+        function rebuildCustomDropdownGroup() {
+            const group = document.getElementById('customThemesGroup');
+            group.innerHTML = "";
+            Object.keys(customUserThemes).forEach(themeId => {
+                const opt = document.createElement('option');
+                opt.value = `custom-${themeId}`;
+                opt.textContent = customUserThemes[themeId].name;
+                group.appendChild(opt);
+            });
+        }
+
+        function applyThemeStylesDirectly(themeVariablesObj) {
+            const inlineStylesId = 'dynamic-user-theme-css-runtime';
+            let styleEl = document.getElementById(inlineStylesId);
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = inlineStylesId;
+                document.head.appendChild(styleEl);
+            }
+
+            let cssString = `[data-theme="studio-runtime"] {\n`;
+            Object.keys(themeVariablesObj).forEach(vKey => {
+                cssString += `  ${vKey}: ${themeVariablesObj[vKey]};\n`;
+            });
+            cssString += `}`;
+            styleEl.textContent = cssString;
+
+            document.documentElement.setAttribute('data-theme', 'studio-runtime');
+
+            if (activeFileId) {
+                let file = findNodeById(fileSystem, activeFileId);
+                if (file) updateCode(file.content);
+            }
+        }
+
+        function handleDropdownThemeChange(value) {
+            if (value.startsWith('custom-')) {
+                const themeId = value.replace('custom-', '');
+                const targetThemeObj = customUserThemes[themeId];
+                if (targetThemeObj) applyThemeStylesDirectly(targetThemeObj.variables);
+            } else {
+                document.documentElement.setAttribute('data-theme', value);
+                syncHljsTheme(value);
+                if (activeFileId) {
+                    let file = findNodeById(fileSystem, activeFileId);
+                    if (file) updateCode(file.content);
+                }
+            }
+        }
+
+        // --- Theme Studio Modal Panel Logics ---
+
+        function openThemeStudio() {
+            const modal = document.getElementById('themeStudioModal');
+            const container = document.getElementById('studioVariablesContainer');
+            document.getElementById('studioThemeName').value = "";
+            container.innerHTML = "";
+
+            // Gather base computing style references currently active to fill default color picking palettes
+            const rootComputed = getComputedStyle(document.documentElement);
+
+            variableRegistry.forEach(item => {
+                let currentDefaultHex = rootComputed.getPropertyValue(item.key).trim();
+                // Fallback normalizer if hex matching catches clean text shortforms
+                if (!currentDefaultHex.startsWith('#')) currentDefaultHex = '#1e1e1e';
+
+                const row = document.createElement('div');
+                row.className = 'color-row';
+
+                row.innerHTML = `
+                    <div class="color-info">
+                        <span class="color-label">${item.label}</span>
+                        <span class="color-description">${item.desc}</span>
+                    </div>
+                    <div class="color-input-wrapper">
+                        <input type="color" data-var="${item.key}" value="${normalizeToHex(currentDefaultHex)}" oninput="syncStudioColorChange(this)">
+                        <input type="text" class="color-hex-text" data-var="${item.key}" value="${normalizeToHex(currentDefaultHex)}" oninput="syncStudioTextChange(this)">
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            modal.classList.add('open');
+        }
+
+        function closeThemeStudio() {
+            document.getElementById('themeStudioModal').classList.remove('open');
+        }
+
+        function normalizeToHex(str) {
+            // Converts brief shorthand css words to clean hex if needed for system input fields
+            if (str === 'white') return '#ffffff';
+            if (str === 'black') return '#000000';
+            // Trim down length issues from parsing engines
+            if (str.length === 4 && str.startsWith('#')) {
+                return '#' + str[1] + str[1] + str[2] + str[2] + str[3] + str[3];
+            }
+            return str.substring(0, 7);
+        }
+
+        function syncStudioColorChange(inputEl) {
+            const vKey = inputEl.dataset.var;
+            const textInput = inputEl.nextElementSibling;
+            textInput.value = inputEl.value;
+            // Instant real-time preview adjustments update
+            document.documentElement.style.setProperty(vKey, inputEl.value);
+        }
+
+        function syncStudioTextChange(inputEl) {
+            const vKey = inputEl.dataset.var;
+            const colorInput = inputEl.previousElementSibling;
+            if (/^#[0-9A-F]{6}$/i.test(inputEl.value)) {
+                colorInput.value = inputEl.value;
+                document.documentElement.style.setProperty(vKey, inputEl.value);
+            }
+        }
+
+        function saveStudioTheme() {
+            const rawName = document.getElementById('studioThemeName').value.trim();
+            if (!rawName) {
+                alert("Please enter a name for your custom theme design profile configuration.");
+                return;
+            }
+
+            const cleanId = rawName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const themePayload = {
+                name: rawName,
+                variables: {}
+            };
+
+            document.querySelectorAll('#studioVariablesContainer input[type="color"]').forEach(input => {
+                themePayload.variables[input.dataset.var] = input.value;
+            });
+
+            customUserThemes[cleanId] = themePayload;
+            saveCustomThemesToStorage();
+
+            // Auto Select and activate the theme
+            const dropdown = document.getElementById('themeSelector');
+            dropdown.value = `custom-${cleanId}`;
+            handleDropdownThemeChange(dropdown.value);
+
+            closeThemeStudio();
+        }
+
+        function exportStudioTheme() {
+            const rawName = document.getElementById('studioThemeName').value.trim() || "untitled-studio-theme";
+            const themePayload = {
+                name: rawName,
+                variables: {}
+            };
+
+            document.querySelectorAll('#studioVariablesContainer input[type="color"]').forEach(input => {
+                themePayload.variables[input.dataset.var] = input.value;
+            });
+
+            const blob = new Blob([JSON.stringify(themePayload, null, 2)], {
+                type: "application/json"
+            });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${rawName.toLowerCase().replace(/\s+/g, '_')}_theme.json`;
+            a.click();
+        }
+
+        function importStudioTheme(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (!parsed.name || !parsed.variables) throw new Error("Malformed profile variables structure.");
+
+                    document.getElementById('studioThemeName').value = parsed.name;
+
+                    // Remap inputs values in panel view grid fields layout
+                    Object.keys(parsed.variables).forEach(vKey => {
+                        const colInput = document.querySelector(`#studioVariablesContainer input[type="color"][data-var="${vKey}"]`);
+                        const txtInput = document.querySelector(`#studioVariablesContainer input[type="text"][data-var="${vKey}"]`);
+                        if (colInput && txtInput) {
+                            colInput.value = parsed.variables[vKey];
+                            txtInput.value = parsed.variables[vKey];
+                            document.documentElement.style.setProperty(vKey, parsed.variables[vKey]);
+                        }
+                    });
+                } catch (err) {
+                    alert("Error processing import target payload configurations profile file parsing error.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- File Tree Traversals & Navigation Tree Render Logics ---
+        function findNodeById(nodes, id) {
+            for (let node of nodes) {
+                if (node.id === id) return node;
+                if (node.type === "folder" && node.children) {
+                    let found = findNodeById(node.children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function removeNodeById(nodes, id) {
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].id === id) return nodes.splice(i, 1)[0];
+                if (nodes[i].type === "folder" && nodes[i].children) {
+                    let found = removeNodeById(nodes[i].children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function findFirstFile(nodes) {
+            for (let node of nodes) {
+                if (node.type === "file") return node;
+                if (node.type === "folder" && node.children) {
+                    let found = findFirstFile(node.children);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        function renderFileSystem() {
+            const container = document.getElementById("fileList");
+            container.innerHTML = "";
+            buildTreeElements(fileSystem, container, true);
+        }
+
+        function buildTreeElements(nodes, parentElement, isRoot = false) {
+            nodes.forEach((node, index) => {
+                const nodeContainer = document.createElement("div");
+                nodeContainer.className = `tree-node ${isRoot ? 'root-level' : ''}`;
+                nodeContainer.dataset.id = node.id;
+
+                const row = document.createElement("div");
+                row.className = `node-row ${node.id === activeFileId ? 'active' : ''}`;
+                row.draggable = true;
+                row.dataset.id = node.id;
+
+                row.addEventListener('dragstart', (e) => {
+                    draggedNodeId = node.id;
+                    e.dataTransfer.setData('text/plain', node.id);
+                    e.stopPropagation();
+                });
+                row.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    row.classList.add('drag-over');
+                });
+                row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+                row.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    row.classList.remove('drag-over');
+                    handleDropNode(draggedNodeId, node.id, index);
+                });
+
+                row.onclick = (e) => {
+                    if (e.target.type !== 'checkbox' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
+                        if (node.type === "file") selectFile(node.id);
+                    }
+                };
+
+                const cb = document.createElement("input");
+                cb.type = "checkbox";
+                cb.className = "node-checkbox";
+                cb.dataset.id = node.id;
+
+                const icon = document.createElement("span");
+                icon.className = "node-icon";
+                icon.textContent = node.type === "folder" ? "📁" : "📄";
+
+                const nameSpan = document.createElement("span");
+                nameSpan.className = "node-name";
+                if (node.isEditing) {
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.className = "rename-input";
+                    input.value = node.name;
+                    input.onclick = (e) => e.stopPropagation();
+                    input.onkeydown = (e) => {
+                        if (e.key === 'Enter') saveRename(node.id, input.value);
+                        if (e.key === 'Escape') {
+                            node.isEditing = false;
+                            renderFileSystem();
+                        }
+                    };
+                    input.onblur = () => saveRename(node.id, input.value);
+                    nameSpan.appendChild(input);
+                    setTimeout(() => input.focus(), 50);
+                } else {
+                    nameSpan.textContent = node.name;
+                }
+
+                const actions = document.createElement("div");
+                actions.className = "node-actions";
+
+                const renBtn = document.createElement("button");
+                renBtn.className = "node-btn";
+                renBtn.textContent = "✏️";
+                renBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    node.isEditing = true;
+                    renderFileSystem();
+                };
+
+                const delBtn = document.createElement("button");
+                delBtn.className = "node-btn";
+                delBtn.textContent = "🗑️";
+                delBtn.style.color = "#ff4545";
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteNode(node.id);
+                };
+
+                actions.appendChild(renBtn);
+                actions.appendChild(delBtn);
+
+                row.appendChild(cb);
+                row.appendChild(icon);
+                row.appendChild(nameSpan);
+                row.appendChild(actions);
+                nodeContainer.appendChild(row);
+
+                if (node.type === "folder" && node.children && node.children.length > 0) {
+                    const childrenWrapper = document.createElement("div");
+                    childrenWrapper.style.display = "flex";
+                    childrenWrapper.style.flexDirection = "column";
+                    buildTreeElements(node.children, childrenWrapper, false);
+                    nodeContainer.appendChild(childrenWrapper);
+                }
+
+                parentElement.appendChild(nodeContainer);
+            });
+        }
+
+        function handleDropNode(sourceId, targetId, index) {
+            if (!sourceId || sourceId === targetId) return;
+            let sourceNode = findNodeById(fileSystem, sourceId);
+            let targetNode = findNodeById(fileSystem, targetId);
+
+            if (sourceNode.type === 'folder' && isDescendant(sourceNode, targetNode)) return;
+
+            let plucked = removeNodeById(fileSystem, sourceId);
+            if (targetNode.type === "folder") {
+                targetNode.children.push(plucked);
+            } else {
+                let parentChildren = getParentChildrenArray(fileSystem, targetId);
+                let targetIdx = parentChildren.findIndex(n => n.id === targetId);
+                parentChildren.splice(targetIdx + 1, 0, plucked);
+            }
+            renderFileSystem();
+            updatePreview();
+        }
+
+        function isDescendant(parentFolder, targetNode) {
+            if (!parentFolder.children) return false;
+            for (let child of parentFolder.children) {
+                if (child.id === targetNode.id) return true;
+                if (child.type === 'folder' && isDescendant(child, targetNode)) return true;
+            }
+            return false;
+        }
+
+        function getParentChildrenArray(currentLevel, targetId) {
+            for (let node of currentLevel) {
+                if (node.id === targetId) return currentLevel;
+                if (node.type === "folder" && node.children) {
+                    let check = getParentChildrenArray(node.children, targetId);
+                    if (check) return check;
+                }
+            }
+            return null;
+        }
+
+        function selectFile(id) {
+            let node = findNodeById(fileSystem, id);
+            if (node && node.type === "file") {
+                activeFileId = id;
+                textarea.value = node.content;
+                textarea.disabled = false;
+                updateCode(textarea.value);
+                renderFileSystem();
+            }
+        }
+
+        function createNewItem(type) {
+            const name = type === "file" ? "untitled.html" : "New_Folder";
+            const newItem = {
+                id: generateId(),
+                name: name,
+                type: type,
+                isEditing: true
+            };
+            if (type === "file") newItem.content = "";
+            else newItem.children = [];
+            fileSystem.push(newItem);
+            renderFileSystem();
+        }
+
+        function saveRename(id, newName) {
+            let node = findNodeById(fileSystem, id);
+            if (node) {
+                node.name = newName.trim() || node.name;
+                node.isEditing = false;
+                renderFileSystem();
+                updatePreview();
+            }
+        }
+
+        function deleteNode(id) {
+            removeNodeById(fileSystem, id);
+            if (activeFileId === id) {
+                let fallback = findFirstFile(fileSystem);
+                if (fallback) selectFile(fallback.id);
+                else {
+                    activeFileId = null;
+                    textarea.value = "";
+                    textarea.disabled = true;
+                    highlightContent.innerHTML = "";
+                }
+            }
+            renderFileSystem();
+            updatePreview();
+        }
+
+        function uploadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const newId = generateId();
+                fileSystem.push({
+                    id: newId,
+                    name: file.name,
+                    type: "file",
+                    content: e.target.result
+                });
+                selectFile(newId);
+            };
+            reader.readAsText(file);
+        }
+
+        function uploadFolder(event) {
+            const loadedFiles = event.target.files;
+            if (loadedFiles.length === 0) return;
+            Array.from(loadedFiles).forEach(file => {
+                const pathParts = (file.webkitRelativePath || file.name).split('/');
+                insertUploadedPath(fileSystem, pathParts, file);
+            });
+        }
+
+        function insertUploadedPath(currentLevel, pathParts, rawFile) {
+            const currentPart = pathParts[0];
+            if (pathParts.length === 1) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentLevel.push({
+                        id: generateId(),
+                        name: currentPart,
+                        type: "file",
+                        content: e.target.result
+                    });
+                    renderFileSystem();
+                    updatePreview();
+                };
+                reader.readAsText(rawFile);
+            } else {
+                let folder = currentLevel.find(n => n.type === 'folder' && n.name === currentPart);
+                if (!folder) {
+                    folder = {
+                        id: generateId(),
+                        name: currentPart,
+                        type: "folder",
+                        children: []
+                    };
+                    currentLevel.push(folder);
+                }
+                pathParts.shift();
+                insertUploadedPath(folder.children, pathParts, rawFile);
+            }
+        }
+
+        // --- Downloader Core Framework Engines ---
+        function triggerDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function packageZipRecursive(zip, nodes) {
+            nodes.forEach(node => {
+                if (node.type === "file") zip.file(node.name, node.content);
+                else if (node.type === "folder") {
+                    const folderZip = zip.folder(node.name);
+                    packageZipRecursive(folderZip, node.children);
+                }
+            });
+        }
+
+        function downloadSelected() {
+            const checkboxes = document.querySelectorAll('.node-checkbox:checked');
+            if (checkboxes.length === 0) return;
+            if (checkboxes.length === 1) {
+                let node = findNodeById(fileSystem, checkboxes[0].dataset.id);
+                if (node.type === "file") triggerDownload(new Blob([node.content], {
+                    type: "text/plain"
+                }), node.name);
+                else {
+                    const zip = new JSZip();
+                    const folderZip = zip.folder(node.name);
+                    packageZipRecursive(folderZip, node.children);
+                    zip.generateAsync({
+                        type: "blob"
+                    }).then(content => triggerDownload(content, `${node.name}.zip`));
+                }
+            } else {
+                const zip = new JSZip();
+                checkboxes.forEach(box => {
+                    let node = findNodeById(fileSystem, box.dataset.id);
+                    if (node.type === "file") zip.file(node.name, node.content);
+                    else packageZipRecursive(zip.folder(node.name), node.children);
+                });
+                zip.generateAsync({
+                    type: "blob"
+                }).then(content => triggerDownload(content, "workspace_pack.zip"));
+            }
+        }
+
+        function downloadAll() {
+            const zip = new JSZip();
+            packageZipRecursive(zip, fileSystem);
+            zip.generateAsync({
+                type: "blob"
+            }).then(content => triggerDownload(content, "project.zip"));
+        }
+
+
+        // --- Highlight.js Theme Sync ---
+        const hljsThemeMap = {
+            'vs-dark':       'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/vs2015.min.css',
+            'vs-light':      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/github.min.css',
+            'nordic-frost':  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/nord.min.css',
+            'dracula':       'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/dracula.min.css',
+            'one-dark':      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/one-dark.min.css',
+            'gruvbox-dark':  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/gruvbox-dark-hard.min.css',
+            'synthwave':     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/synthwave84.min.css',
+            'tokyo-night':   'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/tokyo-night-dark.min.css',
+            'github-light':  'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/github.min.css',
+            'cyberpunk':     'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/synthwave84.min.css',
+            'monokai':       'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/monokai.min.css',
+            'solarized-light':'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/solarized-light.min.css',
+        };
+
+        function syncHljsTheme(themeName) {
+            const url = hljsThemeMap[themeName] || hljsThemeMap['vs-dark'];
+            document.getElementById('hljs-theme').href = url;
+        }
+
+        // --- Highlight.js Syntax Engine ---
+        function getLanguage(filename) {
+            if (filename.endsWith('.html')) return 'html';
+            if (filename.endsWith('.css')) return 'css';
+            if (filename.endsWith('.js')) return 'javascript';
+            return 'plaintext';
+        }
+
+        function updateCode(text) {
+            let activeFile = findNodeById(fileSystem, activeFileId);
+            if (!activeFile) return;
+            activeFile.content = text;
+
+            const lang = getLanguage(activeFile.name);
+            highlightContent.className = `language-${lang}`;
+            const result = hljs.highlight(text, { language: lang, ignoreIllegals: true });
+            highlightContent.innerHTML = result.value;
+
+            if (livePreviewActive) updatePreview();
+        }
+
+        function syncScroll(element) {
+            preArea.scrollTop = element.scrollTop;
+            preArea.scrollLeft = element.scrollLeft;
+        }
+
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 1;
+                updateCode(this.value);
+            }
+        });
+
+        function gatherAllFilesFlat(nodes, flatObj = {}) {
+            nodes.forEach(node => {
+                if (node.type === 'file') flatObj[node.name] = node.content;
+                else if (node.type === 'folder' && node.children) gatherAllFilesFlat(node.children, flatObj);
+            });
+            return flatObj;
+        }
+
+        function compileProject() {
+            let flatWorkspace = gatherAllFilesFlat(fileSystem);
+            let htmlContent = flatWorkspace["index.html"] || Object.values(flatWorkspace)[0] || "<h1>No index.html entry loaded</h1>";
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+
+            doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+                const href = link.getAttribute('href');
+                if (flatWorkspace[href]) {
+                    const style = doc.createElement('style');
+                    style.textContent = flatWorkspace[href];
+                    link.replaceWith(style);
+                }
+            });
+            doc.querySelectorAll('script[src]').forEach(script => {
+                const src = script.getAttribute('src');
+                if (flatWorkspace[src]) {
+                    const newScript = doc.createElement('script');
+                    newScript.textContent = flatWorkspace[src];
+                    script.replaceWith(newScript);
+                }
+            });
+            return doc.documentElement.outerHTML;
+        }
+
+        function updatePreview() {
+            document.getElementById("preview").srcdoc = compileProject();
+        }
+
+        function togglePreview() {
+            const container = document.getElementById("previewContainer");
+            const btn = document.getElementById("togglePreviewBtn");
+            livePreviewActive = !livePreviewActive;
+            if (livePreviewActive) {
+                container.classList.remove("hidden");
+                btn.classList.add("active");
+                btn.textContent = "Live Preview: ON";
+                updatePreview();
+            } else {
+                container.classList.add("hidden");
+                btn.classList.remove("active");
+                btn.textContent = "Live Preview: OFF";
+            }
+        }
+
+        function previewInNewTab() {
+            const blob = new Blob([compileProject()], {
+                type: 'text/html'
+            });
+            window.open(URL.createObjectURL(blob), '_blank');
+        }
+
+        // Initialize Core Engines
+        loadCustomThemesFromStorage();
+        renderFileSystem();
+        selectFile(activeFileId);
+    </script>
+</body>
+
+</html>
