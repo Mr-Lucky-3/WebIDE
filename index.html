@@ -4,14 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebIDE Engine - Theme Studio</title>
+    <title>&lt;/WebIDE&gt;</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/vs2015.min.css" id="hljs-theme">
     <style>
-        /* Strip hljs background so our theme --bg-dark controls editor color */
         pre code.hljs { background: transparent !important; padding: 0 !important; }
 
-        /* Bridge: hljs token classes → CSS variables so custom themes control all syntax colors */
         .hljs-keyword,
         .hljs-selector-pseudo,
         .hljs-selector-class          { color: var(--syntax-keyword) !important; }
@@ -50,7 +48,6 @@
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <style>
-        /* Core Engine Themes */
         :root,
         [data-theme="vs-dark"] {
             --bg-dark: #1e1e1e;
@@ -386,7 +383,6 @@
             padding: 5px 0;
         }
 
-        /* Virtual Document Tree Node Properties */
         .tree-node {
             display: flex;
             flex-direction: column;
@@ -475,7 +471,6 @@
             border-radius: 2px;
         }
 
-        /* Dual-Layer Synced Editor Window Canvas */
         .content-area {
             flex: 1;
             display: flex;
@@ -532,7 +527,6 @@
             background-color: var(--bg-dark);
         }
 
-        /* Dynamic Syntax Highlight Overlays */
         .tag {
             color: var(--syntax-tag);
         }
@@ -575,7 +569,6 @@
             background: white;
         }
 
-        /* --- THEME BUILDER MODAL POPUP WINDOW --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -815,7 +808,6 @@
     </div>
 
     <script>
-        // Default Workspace Initialization Seed Data
         let fileSystem = [{
                 id: "1",
                 name: "index.html",
@@ -839,9 +831,8 @@
         let activeFileId = "1";
         let livePreviewActive = true;
         let draggedNodeId = null;
-        let customUserThemes = {}; // Holds user-created themes in memory
+        let customUserThemes = {};
 
-        // Target Dictionary describing exactly what each property controls
         const variableRegistry = [{
                 key: "--bg-dark",
                 label: "Editor Background",
@@ -922,8 +913,6 @@
             return '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        // --- Integrated Custom Theme System Core & Persistent Storage ---
-
         function loadCustomThemesFromStorage() {
             const saved = localStorage.getItem('WEBIDE_CUSTOM_THEMES');
             if (saved) {
@@ -991,20 +980,16 @@
             }
         }
 
-        // --- Theme Studio Modal Panel Logics ---
-
         function openThemeStudio() {
             const modal = document.getElementById('themeStudioModal');
             const container = document.getElementById('studioVariablesContainer');
             document.getElementById('studioThemeName').value = "";
             container.innerHTML = "";
 
-            // Gather base computing style references currently active to fill default color picking palettes
             const rootComputed = getComputedStyle(document.documentElement);
 
             variableRegistry.forEach(item => {
                 let currentDefaultHex = rootComputed.getPropertyValue(item.key).trim();
-                // Fallback normalizer if hex matching catches clean text shortforms
                 if (!currentDefaultHex.startsWith('#')) currentDefaultHex = '#1e1e1e';
 
                 const row = document.createElement('div');
@@ -1031,10 +1016,8 @@
         }
 
         function normalizeToHex(str) {
-            // Converts brief shorthand css words to clean hex if needed for system input fields
             if (str === 'white') return '#ffffff';
             if (str === 'black') return '#000000';
-            // Trim down length issues from parsing engines
             if (str.length === 4 && str.startsWith('#')) {
                 return '#' + str[1] + str[1] + str[2] + str[2] + str[3] + str[3];
             }
@@ -1045,7 +1028,6 @@
             const vKey = inputEl.dataset.var;
             const textInput = inputEl.nextElementSibling;
             textInput.value = inputEl.value;
-            // Instant real-time preview adjustments update
             document.documentElement.style.setProperty(vKey, inputEl.value);
         }
 
@@ -1078,7 +1060,6 @@
             customUserThemes[cleanId] = themePayload;
             saveCustomThemesToStorage();
 
-            // Auto Select and activate the theme
             const dropdown = document.getElementById('themeSelector');
             dropdown.value = `custom-${cleanId}`;
             handleDropdownThemeChange(dropdown.value);
@@ -1118,7 +1099,6 @@
 
                     document.getElementById('studioThemeName').value = parsed.name;
 
-                    // Remap inputs values in panel view grid fields layout
                     Object.keys(parsed.variables).forEach(vKey => {
                         const colInput = document.querySelector(`#studioVariablesContainer input[type="color"][data-var="${vKey}"]`);
                         const txtInput = document.querySelector(`#studioVariablesContainer input[type="text"][data-var="${vKey}"]`);
@@ -1135,7 +1115,6 @@
             reader.readAsText(file);
         }
 
-        // --- File Tree Traversals & Navigation Tree Render Logics ---
         function findNodeById(nodes, id) {
             for (let node of nodes) {
                 if (node.id === id) return node;
@@ -1430,7 +1409,6 @@
             }
         }
 
-        // --- Downloader Core Framework Engines ---
         function triggerDownload(blob, filename) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -1488,7 +1466,6 @@
         }
 
 
-        // --- Highlight.js Theme Sync ---
         const hljsThemeMap = {
             'vs-dark':       'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/vs2015.min.css',
             'vs-light':      'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/base16/github.min.css',
@@ -1509,7 +1486,6 @@
             document.getElementById('hljs-theme').href = url;
         }
 
-        // --- Highlight.js Syntax Engine ---
         function getLanguage(filename) {
             if (filename.endsWith('.html')) return 'html';
             if (filename.endsWith('.css')) return 'css';
@@ -1606,7 +1582,6 @@
             window.open(URL.createObjectURL(blob), '_blank');
         }
 
-        // Initialize Core Engines
         loadCustomThemesFromStorage();
         renderFileSystem();
         selectFile(activeFileId);
